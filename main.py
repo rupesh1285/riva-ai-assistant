@@ -16,21 +16,22 @@ if not api_key:
     print("API not present")
     exit()
 
+history = []
+
 while True:
     user_input = input("You: ")
         
     if user_input == "/quit":
         break
     else:
+        history.append({"role": "user", "parts": [{"text": user_input}]})
         data = {
-                "contents": [
-                 {
-                    "parts": [{"text": user_input}]
-                 }]
+                "contents": history
             }
         response = requests.post(url, headers=headers, json=data)
         result = response.json()
         reply = result["candidates"][0]["content"]["parts"][0]["text"]
         print("Riva:", reply)
+        history.append({"role": "model", "parts": [{"text": reply}]})
 
 
