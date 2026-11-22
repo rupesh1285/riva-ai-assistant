@@ -35,3 +35,9 @@ def get_reply(history, prompt, api_key):
 
     print("All models exhausted for today!")
     return None
+
+
+def get_current_model():
+    if current_idx < len(MODELS):
+        return MODELS[current_idx]
+    return "None (all models exhausted)"
