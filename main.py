@@ -18,7 +18,11 @@ while True:
 
     if user_input == "/quit":
         break
-
+    elif user_input == "/help":
+        print("Please select the command:")
+        continue
+    elif user_input == "/help":
+        print("")
     history.append({"role": "user", "parts": [{"text": user_input}]})
     reply = get_reply(history, prompt, api_key)
 
