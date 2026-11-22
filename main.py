@@ -18,9 +18,8 @@ Behaviour: {persona['behavior']}
 System_prompt: {persona['system_prompt']}
 """
 
-
+url = ""
 api_key = os.getenv("GEMINI_API_KEY")
-url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
 headers = {"Content-Type": "application/json", "x-goog-api-key": api_key}
 
 if not api_key:
@@ -29,23 +28,28 @@ if not api_key:
 
 history = []
 
+models = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash"]
+
 while True:
     user_input = input("You: ")
 
     if user_input == "/quit":
         break
     else:
+        for model in models:
+            url = f"[https://generativelanguage.googleapis.com/v1beta/models/](https://generativelanguage.googleapis.com/v1beta/models/){model}:generateContent"
+
         history.append({"role": "user", "parts": [{"text": user_input}]})
         data = {
             "system_instruction": {"parts": [{"text": prompt}]},
             "contents": history,
         }
         response = requests.post(url, headers=headers, json=data)
-        result = response.json()
         if response.status_code != 200:
-            print("Status Code: ", response.status_code, response.json())
+            print("Status Code: ", response.status_code, response.text)
             history.pop()
             continue
+        result = response.json()
         reply = result["candidates"][0]["content"]["parts"][0]["text"]
         print("Riva:", reply)
         history.append({"role": "model", "parts": [{"text": reply}]})
