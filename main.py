@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from models import get_reply, get_current_model
+from memory import load_history, save_history
 from persona import load_persona
 
 load_dotenv()
@@ -11,7 +12,7 @@ if not api_key:
     exit()
 
 prompt = load_persona()
-history = []
+history = load_history()
 
 while True:
     user_input = input("You: ").strip()
@@ -30,6 +31,7 @@ while True:
         continue
     elif user_input == "/clear":
         history.clear()
+        save_history(history)
         continue
     elif user_input == "/model":
         model = get_current_model()
@@ -42,6 +44,7 @@ while True:
         print(prompt)
         continue
     history.append({"role": "user", "parts": [{"text": user_input}]})
+    save_history(history)
     reply = get_reply(history, prompt, api_key)
 
     if reply is None:
