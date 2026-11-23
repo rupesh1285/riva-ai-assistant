@@ -1,4 +1,5 @@
 import requests
+import time
 
 MODELS = [
     "gemini-2.5-flash",
@@ -7,16 +8,22 @@ MODELS = [
     "gemini-2.0-flash-lite",
 ]
 current_idx = 0
+last_switch_time = 0
+COOLDOWN_SECONDS = 300
 
 
 def get_reply(history, prompt, api_key):
-    global current_idx
+    global current_idx, last_switch_time
 
     headers = {"Content-Type": "application/json", "x-goog-api-key": api_key}
     data = {
         "system_instruction": {"parts": [{"text": prompt}]},
         "contents": history,
     }
+
+    if current_idx > 0 and time.time() - last_switch_time >= COOLDOWN_SECONDS:
+        current_idx = 0
+        print("Cooldown finished. Retrying primary model...")
 
     while current_idx < len(MODELS):
         model = MODELS[current_idx]
@@ -29,6 +36,7 @@ def get_reply(history, prompt, api_key):
         elif response.status_code == 429:
             print(f"{model} limit hit! Switching to the next model...")
             current_idx += 1
+            last_switch_time = time.time()
         else:
             print("Error:", response.status_code, response.text)
             return None
